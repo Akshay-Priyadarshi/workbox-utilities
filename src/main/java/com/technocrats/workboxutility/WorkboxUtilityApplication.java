@@ -31,7 +31,7 @@ public class WorkboxUtilityApplication {
 			JSONObject jsonReqObject = new JSONObject(body);
 			String xmlRoot = jsonReqObject.getString("root");
 			String xmlSchemaDetails = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-			String xmlData = XML.toString(jsonReqObject.getJSONObject("data"),"");
+			String xmlData = XML.toString(jsonReqObject.getJSONObject("data"));
 			String rootWrappedXML = "<" + xmlRoot + ">\n" + xmlData + "\n</" + xmlRoot + ">";
 			String xml = xmlSchemaDetails + rootWrappedXML;
 			return xml;
