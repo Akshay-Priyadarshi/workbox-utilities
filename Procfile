@@ -1,1 +1,1 @@
-web: mvn spring-boot:run
+web:  java -jar target/workbox-utility-0.0.1-SNAPSHOT.jar
