@@ -4,7 +4,7 @@ import org.json.JSONObject;
 import org.json.XML;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins="http://localhost:3000/")
+@CrossOrigin(origins="*")
 @RequestMapping("/conversions")
 @RestController
 public class Akshay {
