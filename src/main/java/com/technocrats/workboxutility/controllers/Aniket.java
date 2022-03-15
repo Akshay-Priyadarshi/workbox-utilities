@@ -13,12 +13,13 @@ import com.technocrats.workboxutility.entity.Currency;
 @RestController
 public class Aniket {
 
+    static String apiKey = "70010336f4-42e877ea6a-r8qbpu";
+
     @PostMapping("/currency-conversion")
     public String currencyConversion(@RequestBody() Currency cur) {
         try {
             String from = cur.getFrom();
             String to = cur.getTo();
-            String apiKey = "835fdd8203-2cf944d512-r7891g";
             String url = String.format("https://api.fastforex.io/fetch-one?from=%s&to=%s&api_key=%s", from, to, apiKey);
             RestTemplate restTemplate = new RestTemplate();
             String result = restTemplate.getForObject(url, String.class);
@@ -77,7 +78,6 @@ public class Aniket {
 
     @GetMapping("/available-conversion")
     public HashMap<String, String> availableConversion() {
-        String apiKey = "835fdd8203-2cf944d512-r7891g";
         String url = String.format("https://api.fastforex.io/currencies?api_key=%s", apiKey);
         RestTemplate restTemplate = new RestTemplate();
         String result = restTemplate.getForObject(url, String.class);
