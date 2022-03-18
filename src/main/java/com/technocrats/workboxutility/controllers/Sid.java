@@ -1,10 +1,12 @@
 package com.technocrats.workboxutility.controllers;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
 
 @CrossOrigin(origins = "*")
 @RequestMapping("/json")
@@ -26,22 +30,40 @@ public class Sid {
      * */
     @PostMapping("/difference")
     public String jsonDifference(@RequestBody() String body) {
+
         JSONObject json = new JSONObject(body);
         String j1 = json.getJSONObject("json1").toString();
         String j2 = json.getJSONObject("json2").toString();
-        System.out.println(j1 + j2);
-
-        InputStream s1 = new ByteArrayInputStream(j1.getBytes(Charset.forName("UTF-8")));
-        InputStream s2 = new ByteArrayInputStream(j2.getBytes(Charset.forName("UTF-8")));
 
         ObjectMapper mapper = new ObjectMapper();
+        TypeReference<HashMap<String, Object>> type = new TypeReference<HashMap<String, Object>>() {
+        };
 
-        boolean result = true;
+        String result = "";
+
+        Map<String, Object> leftMap = null;
         try {
-            result = mapper.readTree(s1).equals(mapper.readTree(s2));
-        } catch (IOException e) {
+            leftMap = mapper.readValue(j1, type);
+        } catch (JsonMappingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        return Boolean.toString(result);
+        Map<String, Object> rightMap = null;
+        try {
+            rightMap = mapper.readValue(j2, type);
+        } catch (JsonMappingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        MapDifference<String, Object> diff = Maps.difference(leftMap, rightMap);
+        result = diff.toString();
+
+        return result;
     }
 }
