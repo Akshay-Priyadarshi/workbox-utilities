@@ -13,7 +13,7 @@ import com.technocrats.workboxutility.entity.Currency;
 @RestController
 public class Aniket {
 
-    static String apiKey = "70010336f4-42e877ea6a-r8qbpu";
+    static String apiKey = "0126747d97-9f56fde0e0-r9jo5u";
 
     @PostMapping("/currency-conversion")
     public String currencyConversion(@RequestBody() Currency cur) {
