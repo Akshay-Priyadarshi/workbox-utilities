@@ -2,18 +2,23 @@ package com.technocrats.workboxutility.controllers;
 
 import org.json.JSONObject;
 
+import java.text.Format;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import com.technocrats.workboxutility.entity.Currency;
+import com.technocrats.workboxutility.entity.CustomDate;
 
 @CrossOrigin(origins="*")
 @RequestMapping("/other-utilities")
 @RestController
 public class Aniket {
 
-    static String apiKey = "0126747d97-9f56fde0e0-r9jo5u";
+    static String apiKey = "09513a4bfb-611122e30b-r9yt3j";
 
     @PostMapping("/currency-conversion")
     public String currencyConversion(@RequestBody() Currency cur) {
@@ -105,5 +110,75 @@ public class Aniket {
         }
         return res;
     }
-
+    
+    @PostMapping("/date/dayFinder")
+    public String findDay(@RequestBody CustomDate customDate) throws ParseException {
+    	SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
+    	Date date = sdf.parse(customDate.getDate());
+    	Format f = new SimpleDateFormat("EEEE");  
+    	String str = f.format(date); 
+    	return str;
+    }
+    
+    @GetMapping("/date/available-conversions")
+    public List<String> getConversions() {
+    	List<String> conversions = new ArrayList<>();
+    	conversions.add("MM-DD-YY");
+    	conversions.add("YY-MM-DD");
+    	conversions.add("Month D, YYYY");
+    	conversions.add("DD Mon, YYYY");
+    	conversions.add("DDDD, MMMM DD, YYYY");
+    	conversions.add("D'th MMMM, YYYY");
+    	return conversions;
+    }
+    
+    @PostMapping("/date/convert")
+    public String convertDate(@RequestBody CustomDate customDate) throws ParseException {
+    	
+    	String date = customDate.getDate();
+    	String format = customDate.getFormat();
+    	
+    	String[] values = date.split("-");
+    	
+    	int day = Integer.parseInt(values[0]);
+    	int month = Integer.parseInt(values[1]);
+    	int year = Integer.parseInt(values[2]);
+    	
+    	if(!customDate.check(day, month, year))
+    	{
+    		return "Invalid Date";
+    	}
+    	
+    	String monthName[] = {"January", "February", "March", "April", "May", "June", "July",
+    							"August", "September", "October", "November", "December"};
+    	
+    	String monName[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
+				"Aug", "Sep", "Oct", "Nov", "Dec"};
+    	
+    	if (format.equals("MM-DD-YY"))
+    	{
+    		return values[1] + "-" + values[0] + "-" + values[2];
+    	}
+    	else if (format.equals("YY-MM-DD"))
+    	{
+    		return values[2] + "-" + values[1] + "-" + values[0];
+    	}
+    	else if (format.equals("Month D, YYYY"))
+    	{
+    		return monthName[month-1] + " " + day + ", " + values[2];
+    	}
+    	else if (format.equals("DD Mon, YYYY"))
+    	{
+    		return values[0] + " " + monName[month-1] + ", " + values[2];
+    	}
+    	else if (format.equals("DDDD, MMMM DD, YYYY"))
+    	{
+    		return findDay(customDate) + ", " + monthName[month-1] + " " + values[0] + ", " + values[2];
+    	}
+    	else if(format.equals("D'th MMMM, YYYY"))
+    	{
+    		return customDate.ordinal(day) + " " + monthName[month-1] + ", " + values[2];
+    	}
+    	return "";
+    }
 }

@@ -1,7 +1,9 @@
 package com.technocrats.workboxutility.controllers;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
+import com.technocrats.workboxutility.entity.FlatMapUtil;
 
 @CrossOrigin(origins = "*")
 @RequestMapping("/json")
@@ -30,18 +33,13 @@ public class Sid {
      * */
     @PostMapping("/difference")
     public String jsonDifference(@RequestBody() String body) {
-
-        JSONObject json = new JSONObject(body);
+    	JSONObject json = new JSONObject(body);
         String j1 = json.getJSONObject("json1").toString();
         String j2 = json.getJSONObject("json2").toString();
-
-        ObjectMapper mapper = new ObjectMapper();
+    	ObjectMapper mapper = new ObjectMapper();
         TypeReference<HashMap<String, Object>> type = new TypeReference<HashMap<String, Object>>() {
         };
-
-        String result = "";
-
-        Map<String, Object> leftMap = null;
+    	Map<String, Object> leftMap = null;
         try {
             leftMap = mapper.readValue(j1, type);
         } catch (JsonMappingException e) {
@@ -61,9 +59,50 @@ public class Sid {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        MapDifference<String, Object> diff = Maps.difference(leftMap, rightMap);
-        result = diff.toString();
+    	Map<String, Object> leftFlatMap = FlatMapUtil.flatten(leftMap);
+    	Map<String, Object> rightFlatMap = FlatMapUtil.flatten(rightMap);
 
-        return result;
+    	MapDifference<String, Object> difference = Maps.difference(leftFlatMap, rightFlatMap);
+    	
+    	List<String> output = new ArrayList<>();
+    	
+    	output.add("Entries only on the left");
+    	output.add("--------------------------");
+    	difference.entriesOnlyOnLeft()
+        .forEach((key, value) -> output.add(key + ": " + value));
+    	output.add("");
+    	
+    	output.add("Entries only on the right");
+    	output.add("--------------------------");
+    	difference.entriesOnlyOnRight()
+        .forEach((key, value) -> output.add(key + ": " + value));
+    	output.add("");
+    	
+    	output.add("Entries differing");
+    	output.add("--------------------------");
+    	difference.entriesDiffering()
+    	          .forEach((key, value) -> output.add(key + ": " + value));
+    	
+    	int len = output.size();
+    	for(int i=0;i<len;i++)
+    	{
+    		String s = output.get(i).replace(',', '^');
+    		output.remove(i);
+    		output.add(i, s);
+    	}
+    	
+    	String ans = output.toString();
+    	
+    	StringBuilder sb = new StringBuilder(ans);
+    	sb.deleteCharAt(ans.length()-1);
+    	sb.deleteCharAt(0);
+    	
+    	String res = sb.toString();
+    	
+    	String out = res.replace(',', '|');
+    	String result = out.replace('^', ',');
+    	
+    	return result;
     }
+    
 }
